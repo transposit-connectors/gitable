@@ -11,15 +11,13 @@
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
   <!-- Transposit SDK -->
-  <script src="https://unpkg.com/transposit@1.0.0/dist/bundle.prod.js"></script>
+  <script src="https://unpkg.com/transposit@^0.7.3/dist/bundle.prod.js"></script>
   <script>
-    const transposit = new Transposit.Transposit();
-
-    /****/
     // These variables in triple curly braces are dynamically injected by Transposit and should not be modified
     const maintainer = "{{{maintainer}}}";
     const applicationName = "{{{applicationName}}}";
-    /****/
+    const host = "{{{host}}}";
+    const transposit = new Transposit.Transposit(maintainer, applicationName, host);
   </script>
 </head>
 <body class="bg-light">
@@ -81,9 +79,9 @@
       })
       .catch((response) => {
         if (response.requestId) {
-          console.log(`Experienced an error running an operation! View the debug logs here: https://console.transposit.com/t/${maintainer}/${applicationName}/monitor/${response.requestId}`);
+          console.log(`Experienced an error running an operation! View the debug logs here: ${host}/t/${maintainer}/${applicationName}/monitor/${response.requestId}`);
         } else {
-          console.log(`The operation did not run at all. Try again, or check the deployment configurations if the problem persists: https://console.transposit.com/t/${maintainer}/${applicationName}/deploy`);
+          console.log(`The operation did not run at all. Try again, or check the deployment configurations if the problem persists: ${host}/t/${maintainer}/${applicationName}/deploy`);
         }
 
         $("#loading").hide();

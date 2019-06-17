@@ -1,19 +1,228 @@
 {
   "v2": {
     "transposit": {
+      "dependencies": [{
+        "name": "transposit/airtable:v2.*.*",
+        "alias": "airtable"
+      }, {
+        "name": "transposit/github:v2.*.*",
+        "alias": "github"
+      }],
       "operations": [{
-        "id": "hello_world",
-        "description": "Returns \"Hello, world\" in different languages",
+        "id": "list_issues_for_user",
+        "description": "get all issues for repos",
+        "tql": {
+          "parameters": [{
+            "name": "owner",
+            "default": {
+              "text": "jessfraz"
+            },
+            "type": "STRING"
+          }],
+          "tql": "SELECT A.created_at as created, A.updated_at as updated, B.full_name, A.number, A.html_url as url, A.state, A.title, A.user.login as author, A.labels, B.name, A.closed_at as completed, A.comments\nFROM github.list_issues_for_repo\n  AS A \n  JOIN this.list_repos_for_user \n  as B ON A.repo = B.name\n  WHERE A.owner=@owner\n AND B.owner=@owner"
+        }
+      }, {
+        "id": "update_record",
+        "tql": {
+          "parameters": [{
+            "name": "recordID",
+            "type": "STRING"
+          }, {
+            "name": "baseID",
+            "type": "STRING"
+          }, {
+            "name": "table",
+            "type": "STRING"
+          }, {
+            "name": "reference",
+            "type": "STRING"
+          }, {
+            "name": "state",
+            "type": "STRING"
+          }, {
+            "name": "author",
+            "type": "STRING"
+          }, {
+            "name": "comments",
+            "type": "STRING"
+          }, {
+            "name": "url",
+            "type": "STRING"
+          }, {
+            "name": "updated",
+            "type": "STRING"
+          }, {
+            "name": "created",
+            "type": "STRING"
+          }, {
+            "name": "completed",
+            "type": "STRING"
+          }, {
+            "name": "repo",
+            "type": "STRING"
+          }],
+          "tql": "SELECT * FROM airtable.update_record\n  WHERE recordId=@recordID\n  AND baseId=@baseID\n  AND table=@table\n  AND $body=(SELECT {\n    'fields' : { \n            'Reference':  @reference,\n\t\t\t'Title':      @title,\n\t\t\t'State':     @state,\n\t\t\t'Author':     @author,\n\t\t\t'Type':       @type,\n\t\t\t'Comments':   @comments,\n\t\t\t'URL':        @url,\n\t\t\t'Updated':    @updated,\n\t\t\t'Created':    @created,\n\t\t\t'Completed':  @completed,\n\t\t\t'Repository': @repo, \n             }\n  })\n\n/*\n * For sample code and reference material, visit\n * https://docs.transposit.com/get-started/sql-quickstart\n */"
+        }
+      }, {
+        "id": "list_pull_requests_for_user",
+        "description": "list all the pull requests for a user",
+        "tql": {
+          "parameters": [{
+            "name": "owner",
+            "default": {
+              "text": "jessfraz"
+            },
+            "type": "STRING"
+          }],
+          "tql": "SELECT * FROM github.list_pull_requests\n  AS A \n  JOIN this.list_repos_for_user \n  as B ON A.repo = B.name\n  WHERE A.owner=@owner\n AND B.owner=@owner\n\n/*\n * For sample code and reference material, visit\n * https://docs.transposit.com/get-started/sql-quickstart\n */"
+        }
+      }, {
+        "id": "get_airtable_records",
+        "tql": {
+          "parameters": [{
+            "name": "baseID",
+            "default": {
+              "text": "appZ3DctMNQV7Ulsu"
+            },
+            "type": "STRING"
+          }, {
+            "name": "table",
+            "default": {
+              "text": "Personal Repos Pull Requests and Issues"
+            },
+            "type": "STRING"
+          }],
+          "tql": "SELECT id, fields.Reference as reference FROM airtable.get_records\n  WHERE baseId=@baseID\n  AND table=@table\n\n\n/*\n * For sample code and reference material, visit\n * https://docs.transposit.com/get-started/sql-quickstart\n */"
+        }
+      }, {
+        "id": "airtable_join_issues",
+        "tql": {
+          "parameters": [{
+            "name": "owner",
+            "default": {
+              "text": "jessfraz"
+            },
+            "type": "STRING"
+          }, {
+            "name": "baseID",
+            "default": {
+              "text": "appZ3DctMNQV7Ulsu"
+            },
+            "type": "STRING"
+          }, {
+            "name": "table",
+            "default": {
+              "text": "Personal Repos Pull Requests and Issues"
+            },
+            "type": "STRING"
+          }],
+          "tql": "SELECT * FROM \nthis.get_airtable_records\nAS A\nJOIN this.get_issues_with_reference \n  as B ON A.reference = B.reference\n  WHERE A.baseId=@baseID\n  AND A.table=@table\n  AND B.owner=@owner\n\n/*\n * For sample code and reference material, visit\n * https://docs.transposit.com/get-started/sql-quickstart\n */"
+        }
+      }, {
+        "id": "list_repos_for_user",
+        "tql": {
+          "parameters": [{
+            "name": "owner",
+            "default": {
+              "text": "jessfraz"
+            },
+            "type": "STRING"
+          }],
+          "tql": "SELECT name, full_name FROM github.list_repos_for_user\n  WHERE username=@owner\n  AND type='owner'\n  AND fork=false\n\n/*\n * For sample code and reference material, visit\n * https://docs.transposit.com/get-started/sql-quickstart\n */"
+        }
+      }, {
+        "id": "create_record",
+        "tql": {
+          "parameters": [{
+            "name": "baseID",
+            "type": "STRING"
+          }, {
+            "name": "table",
+            "type": "STRING"
+          }, {
+            "name": "reference",
+            "type": "STRING"
+          }, {
+            "name": "title",
+            "type": "STRING"
+          }, {
+            "name": "state",
+            "type": "STRING"
+          }, {
+            "name": "author",
+            "type": "STRING"
+          }, {
+            "name": "type",
+            "type": "STRING"
+          }, {
+            "name": "comments",
+            "type": "STRING"
+          }, {
+            "name": "url",
+            "type": "STRING"
+          }, {
+            "name": "updated",
+            "type": "STRING"
+          }, {
+            "name": "created",
+            "type": "STRING"
+          }, {
+            "name": "completed",
+            "type": "STRING"
+          }, {
+            "name": "repo",
+            "type": "STRING"
+          }],
+          "tql": "SELECT * FROM airtable.create_record\n  AND baseId=@baseID\n  AND table=@table\n  AND $body=(SELECT {\n    'fields' : { \n            'Reference':  @reference,\n\t\t\t'Title':      @title,\n\t\t\t'State':     @state,\n\t\t\t'Author':     @author,\n\t\t\t'Type':       @type,\n\t\t\t'Comments':   @comments,\n\t\t\t'URL':        @url,\n\t\t\t'Updated':    @updated,\n\t\t\t'Created':    @created,\n\t\t\t'Completed':  @completed,\n\t\t\t'Repository': @repo, \n             }\n  })\n\n/*\n * For sample code and reference material, visit\n * https://docs.transposit.com/get-started/sql-quickstart\n */"
+        }
+      }, {
+        "id": "update_issues_in_table",
         "function": {
-          "js": "hello_world.js"
-        },
-        "access": {
-          "requireUser": true
+          "parameters": [{
+            "name": "owner",
+            "default": {
+              "text": "jessfraz"
+            },
+            "type": "STRING"
+          }, {
+            "name": "baseID",
+            "default": {
+              "text": "appZ3DctMNQV7Ulsu"
+            },
+            "type": "STRING"
+          }, {
+            "name": "table",
+            "default": {
+              "text": "Personal Repos Pull Requests and Issues"
+            },
+            "type": "STRING"
+          }],
+          "js": "get_issues_with_reference.js"
+        }
+      }],
+      "dataConnections": [{
+        "ref": "github.raw",
+        "overrides": {
+          "swagger": {
+            "oauthConfig": {
+            },
+            "executionLimits": {
+              "maxApiCalls": 5000
+            }
+          }
+        }
+      }, {
+        "ref": "airtable.raw",
+        "overrides": {
+          "swagger": {
+            "executionLimits": {
+              "maxApiCalls": 5000
+            }
+          }
         }
       }],
       "javascriptAPIVersion": "3",
-      "source": "src",
-      "userSettingsDisplay": "GENERATED"
+      "source": "src"
     }
   }
 }
