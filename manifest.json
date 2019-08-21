@@ -223,6 +223,8 @@
       }],
       "javascriptAPIVersion": "3",
       "source": "src"
-    }
+    },
+    "description": "A bot created by Jessie Frazelle for sending all my open issues and PRs on GitHub to a table in Airtable.",
+    "displayName": "Gitable"
   }
 }
